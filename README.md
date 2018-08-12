@@ -11,7 +11,7 @@ yarn add computed-style-diff -D
 ## Usage
 
 ```javascript
-import { getStyleDiff } from 'style-diff'
+import { getStyleDiff } from 'computed-style-diff'
 
 // Toggle the `theme.css` style sheet and print
 // the effects this has based on the computed
@@ -19,6 +19,10 @@ import { getStyleDiff } from 'style-diff'
 // by the selectors in the CSS
 getStyleDiff(['theme.css']).then(console.table)
 ```
+
+## Limitations
+
+Media queries are not getting taken into account, and the computed changes will only contain absolute values.
 
 ## License
 
