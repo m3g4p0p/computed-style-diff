@@ -1,7 +1,7 @@
 {
-  "name": "css-diff",
+  "name": "computed-style-diff",
   "version": "1.0.0",
-  "main": "lib/css-diff.js",
+  "main": "lib/style-diff.js",
   "author": "m3g4p0p",
   "license": "MIT",
   "scripts": {
