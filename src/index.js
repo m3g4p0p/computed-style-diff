@@ -1,3 +1,10 @@
+/**
+ * Create a stylesheet link
+ *
+ * @param {string} href
+ * @param {function} onload
+ * @returns {HTMLElement}
+ */
 const createStyleLink = (href, onload) => {
   const link = document.createElement('link')
 
@@ -8,17 +15,64 @@ const createStyleLink = (href, onload) => {
   return link
 }
 
-const toggleStyle = (href, callback) => {
+/**
+ * Append or remove a stylesheet link with a given href
+ *
+ * @param {string} href
+ * @returns {Promise}
+ */
+const toggleStyle = href => new Promise(resolve => {
   const link = document.head.querySelector(`[href="${href}"]`)
 
   if (link) {
     document.head.removeChild(link)
-    window.requestAnimationFrame(callback)
+    window.requestAnimationFrame(resolve)
   } else {
-    document.head.appendChild(createStyleLink(href, callback))
+    document.head.appendChild(createStyleLink(href, resolve))
   }
+})
+
+/**
+ * Get the stylesheet from a given link
+ *
+ * @param {string} href
+ * @returns {CSSStyleSheet}
+ */
+const getStyleSheet = href => {
+  const link = document.createElement('link')
+
+  link.href = href
+
+  return Array.from(document.styleSheets)
+    .find(styleSheet => styleSheet.href === link.href)
 }
 
+/**
+ * Toggle stylesheets; returns a promise that resolves with
+ * an array of the CSS rules that were added or removed
+ *
+ * @param {string[]} hrefs
+ * @returns {Promise<CSSRule[]>}
+ */
+const getToggledRules = hrefs => {
+  const styleSheetsBefore = hrefs.map(getStyleSheet)
+
+  return Promise.all(hrefs.map(toggleStyle)).then(() => {
+    const styleSheetsAfter = hrefs.map(getStyleSheet)
+
+    return [...styleSheetsBefore, ...styleSheetsAfter]
+      .filter(styleSheet => styleSheet)
+      .reduce((cssRules, styleSheet) => cssRules.concat([...styleSheet.cssRules]), [])
+  })
+}
+
+/**
+ * Get the computed style for an element and convert
+ * it to an object that is easier to work with
+ *
+ * @param {HTMLElement} el
+ * @returns {object}
+ */
 const getStyleObject = el => {
   const style = window.getComputedStyle(el)
 
@@ -28,6 +82,14 @@ const getStyleObject = el => {
   }), {})
 }
 
+/**
+ * Diff two objects, optionally with an array
+ * of properties that should be checked
+ *
+ * @param {object} a
+ * @param {object} b
+ * @param {string[]?} props
+ */
 const diffObjects = (a, b, props) => {
   const res = Object.keys({ ...a, ...b })
     .filter(key => (
@@ -48,37 +110,39 @@ const diffObjects = (a, b, props) => {
   return Object.keys(res).length ? res : null
 }
 
+/**
+ * Map elements to the associated style objects
+ *
+ * @param {NodeList} elements
+ * @returns {WeakMap}
+ */
 const getStyleMap = elements => Array.from(elements).reduce(
   (res, el) => res.set(el, getStyleObject(el)),
   new WeakMap()
 )
 
-const getStyleSheet = href => {
-  const link = document.createElement('link')
-
-  link.href = href
-
-  return Array.from(document.styleSheets)
-    .find(styleSheet => styleSheet.href === link.href)
-}
-
-export const getStyleDiff = (href, byCssText) => new Promise(resolve => {
+/**
+ * Get a dictionary of styles that changed by toggling the
+ * specified stylesheets
+ *
+ * @param {string[]} hrefs
+ * @param {boolean?} rulesOnly
+ * @returns {Promise<object>}
+ */
+export const getStyleDiff = (hrefs, rulesOnly) => {
   const elements = document.body.querySelectorAll('*')
   const before = getStyleMap(elements)
-  const styleSheet = getStyleSheet(href)
 
-  toggleStyle(href, () => {
+  return getToggledRules(hrefs).then(cssRules => {
     const after = getStyleMap(elements)
-    const { cssRules } = styleSheet || getStyleSheet(href)
 
-    const diff = Array
+    return Array
       .from(cssRules, rule => {
         const elements = document.body.querySelectorAll(rule.selectorText)
         return { rule, elements }
       })
       .filter(({ elements }) => elements.length)
       .reduce((res, { rule, elements }) => {
-        const props = byCssText && Array.from(rule.style)
         const { cssText, selectorText } = rule
 
         const diff = Array
@@ -89,41 +153,30 @@ export const getStyleDiff = (href, byCssText) => new Promise(resolve => {
             changes: diffObjects(
               before.get(element),
               after.get(element),
-              props
+              rulesOnly && Array.from(rule.style)
             )
           }))
           .filter(({ changes }) => changes)
 
         return res.concat(diff)
       }, [])
-      .reduce(byCssText ? (res, { cssText, ...diff }) => {
-        res[cssText] = res[cssText] || []
-        res[cssText].push(diff)
-
-        return res
-      } : (res, { element, cssText, selectorText, changes }) => {
-        let entry = null
-
-        if (res[selectorText]) {
-          entry = res[selectorText].find(diff => diff.element === element)
-        } else {
-          res[selectorText] = []
+      .reduce((res, {
+        element,
+        cssText,
+        selectorText,
+        changes
+      }) => {
+        res[selectorText] = res[selectorText] || {
+          elements: new Set(),
+          rules: new Set(),
+          changes: {}
         }
 
-        if (entry) {
-          entry.cssText.push(cssText)
-          Object.assign(entry.changes, changes)
-        } else {
-          res[selectorText].push({
-            element,
-            changes,
-            cssText: [cssText]
-          })
-        }
+        res[selectorText].elements.add(element)
+        res[selectorText].rules.add(cssText)
+        Object.assign(res[selectorText].changes, changes)
 
         return res
       }, {})
-
-    resolve(diff)
   })
-})
+}

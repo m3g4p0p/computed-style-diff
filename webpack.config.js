@@ -9,7 +9,7 @@ const path = {
 
 module.exports = ({ production = false } = {}) => ({
   entry: {
-    superlib: join(path.src, 'index.js')
+    'css-diff': join(path.src, 'index.js')
   },
   plugins: [
     new CleanWebpackPlugin(path.dist)

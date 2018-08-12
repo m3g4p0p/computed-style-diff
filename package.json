@@ -1,7 +1,12 @@
 {
+  "name": "css-diff",
+  "version": "1.0.0",
+  "main": "lib/cssdiff.js",
+  "author": "m3g4p0p",
+  "license": "MIT",
   "scripts": {
-    "build": "yarn karma start --single-run && yarn webpack --env.production",
-    "watch": "concurrently 'yarn karma start' 'yarn webpack --watch'",
+    "build": "webpack --env.production",
+    "watch": "webpack --watch",
     "prepare": "yarn build"
   },
   "devDependencies": {
@@ -12,12 +17,6 @@
     "babel-eslint": "^8.2.5",
     "babel-loader": "^8.0.0-beta.4",
     "clean-webpack-plugin": "^0.1.19",
-    "concurrently": "^3.6.0",
-    "jasmine-core": "^3.1.0",
-    "karma": "^2.0.4",
-    "karma-jasmine": "^1.1.2",
-    "karma-phantomjs-launcher": "^1.0.4",
-    "karma-webpack": "^3.0.0",
     "standard": "^11.0.1",
     "standard-loader": "^6.0.1",
     "webpack": "^4.15.0",
@@ -28,10 +27,5 @@
     "env": {
       "jasmine": true
     }
-  },
-  "name": "css-diff",
-  "version": "1.0.0",
-  "main": "index.js",
-  "author": "m3g4p0p",
-  "license": "MIT"
+  }
 }
