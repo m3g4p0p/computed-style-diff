@@ -248,17 +248,6 @@
     "@babel/helper-remap-async-to-generator" "7.0.0-beta.52"
     "@babel/plugin-syntax-async-generators" "7.0.0-beta.52"
 
-"@babel/plugin-proposal-class-properties@^7.0.0-beta.52":
-  version "7.0.0-beta.52"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-class-properties/-/plugin-proposal-class-properties-7.0.0-beta.52.tgz#8cfca275fb4b6a462db9202970458cb3874fca7b"
-  dependencies:
-    "@babel/helper-function-name" "7.0.0-beta.52"
-    "@babel/helper-member-expression-to-functions" "7.0.0-beta.52"
-    "@babel/helper-optimise-call-expression" "7.0.0-beta.52"
-    "@babel/helper-plugin-utils" "7.0.0-beta.52"
-    "@babel/helper-replace-supers" "7.0.0-beta.52"
-    "@babel/plugin-syntax-class-properties" "7.0.0-beta.52"
-
 "@babel/plugin-proposal-object-rest-spread@7.0.0-beta.52", "@babel/plugin-proposal-object-rest-spread@^7.0.0-beta.52":
   version "7.0.0-beta.52"
   resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-object-rest-spread/-/plugin-proposal-object-rest-spread-7.0.0-beta.52.tgz#d114cdbdb65c8ab026f840339f0484069c69c75e"
@@ -284,12 +273,6 @@
 "@babel/plugin-syntax-async-generators@7.0.0-beta.52":
   version "7.0.0-beta.52"
   resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-async-generators/-/plugin-syntax-async-generators-7.0.0-beta.52.tgz#52d99f0e38cadec8240582f3fb792c8190db24c6"
-  dependencies:
-    "@babel/helper-plugin-utils" "7.0.0-beta.52"
-
-"@babel/plugin-syntax-class-properties@7.0.0-beta.52":
-  version "7.0.0-beta.52"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-class-properties/-/plugin-syntax-class-properties-7.0.0-beta.52.tgz#db43035fc9785f310d53202bc1fce2f375cca220"
   dependencies:
     "@babel/helper-plugin-utils" "7.0.0-beta.52"
 

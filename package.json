@@ -1,7 +1,7 @@
 {
   "name": "css-diff",
   "version": "1.0.0",
-  "main": "lib/cssdiff.js",
+  "main": "lib/css-diff.js",
   "author": "m3g4p0p",
   "license": "MIT",
   "scripts": {
@@ -11,7 +11,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.52",
-    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.52",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.52",
     "@babel/preset-env": "^7.0.0-beta.52",
     "babel-eslint": "^8.2.5",
@@ -23,9 +22,6 @@
     "webpack-cli": "^3.0.8"
   },
   "standard": {
-    "parser": "babel-eslint",
-    "env": {
-      "jasmine": true
-    }
+    "parser": "babel-eslint"
   }
 }
