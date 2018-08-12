@@ -11,7 +11,7 @@ yarn add computed-style-diff -D
 ## Usage
 
 ```javascript
-import { getStyleDiff } from 'style-diff'
+import { getStyleDiff } from 'computed-style-diff'
 
 // Toggle the `theme.css` style sheet and print
 // the effects this has based on the computed
