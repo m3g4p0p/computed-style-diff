@@ -1,6 +1,6 @@
 {
   "name": "computed-style-diff",
-  "version": "0.0.0",
+  "version": "1.0.1",
   "main": "lib/style-diff.js",
   "author": "m3g4p0p",
   "license": "MIT",
