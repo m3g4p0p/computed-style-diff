@@ -127,7 +127,6 @@ const getStyleMap = elements => Array.from(elements).reduce(
  *
  * @param {string[]} hrefs
  * @param {object} [options]
- * @param {string} [options.sortBy = 'selectorText']
  * @param {boolean} [options.rulePropsOnly = false]
  * @param {boolean} [options.squash = true]
  * @returns {Promise<object>}
