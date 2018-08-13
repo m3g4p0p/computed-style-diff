@@ -22,7 +22,9 @@ getStyleDiff(['theme.css']).then(console.table)
 
 ## Limitations
 
-Media queries are not getting taken into account, and the computed changes will only contain absolute values.
+* Media queries are not getting taken into account
+* Neither are element states such as :hover
+* The computed changes will only contain absolute values
 
 ## License
 
