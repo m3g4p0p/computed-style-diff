@@ -20,6 +20,10 @@ import { getStyleDiff } from 'computed-style-diff'
 getStyleDiff(['theme.css']).then(console.table)
 ```
 
+## Limitations
+
+Media queries are not getting taken into account, and the computed changes will only contain absolute values.
+
 ## License
 
 MIT @ m3g4p0p

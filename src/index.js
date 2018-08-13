@@ -88,7 +88,7 @@ const getStyleObject = el => {
  *
  * @param {object} a
  * @param {object} b
- * @param {string[]?} props
+ * @param {string[]} [props]
  */
 const diffObjects = (a, b, props) => {
   const res = Object.keys({ ...a, ...b })
@@ -126,10 +126,16 @@ const getStyleMap = elements => Array.from(elements).reduce(
  * specified stylesheets
  *
  * @param {string[]} hrefs
- * @param {boolean?} rulesOnly
+ * @param {object} [options]
+ * @param {string} [options.sortBy = 'selectorText']
+ * @param {boolean} [options.rulePropsOnly = false]
+ * @param {boolean} [options.squash = true]
  * @returns {Promise<object>}
  */
-export const getStyleDiff = (hrefs, rulesOnly) => {
+export const getStyleDiff = (hrefs, {
+  rulePropsOnly = false,
+  squash = true
+} = {}) => {
   const elements = document.body.querySelectorAll('*')
   const before = getStyleMap(elements)
 
@@ -153,28 +159,36 @@ export const getStyleDiff = (hrefs, rulesOnly) => {
             changes: diffObjects(
               before.get(element),
               after.get(element),
-              rulesOnly && Array.from(rule.style)
+              rulePropsOnly && Array.from(rule.style)
             )
           }))
           .filter(({ changes }) => changes)
 
         return res.concat(diff)
       }, [])
-      .reduce((res, {
-        element,
-        cssText,
+      .reduce(squash ? (res, {
         selectorText,
+        cssText,
+        element,
         changes
       }) => {
         res[selectorText] = res[selectorText] || {
           elements: new Set(),
-          rules: new Set(),
+          cssText: new Set(),
           changes: {}
         }
 
         res[selectorText].elements.add(element)
-        res[selectorText].rules.add(cssText)
+        res[selectorText].cssText.add(cssText)
         Object.assign(res[selectorText].changes, changes)
+
+        return res
+      } : (res, {
+        selectorText,
+        ...diff
+      }) => {
+        res[selectorText] = res[selectorText] || []
+        res[selectorText].push(diff)
 
         return res
       }, {})
