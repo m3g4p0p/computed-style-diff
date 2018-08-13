@@ -19,7 +19,7 @@ const createStyleLink = (href, onload) => {
  * Append or remove a stylesheet link with a given href
  *
  * @param {string} href
- * @returns {Promise}
+ * @returns {Promise<void>}
  */
 const toggleStyle = href => new Promise(resolve => {
   const link = document.head.querySelector(`[href="${href}"]`)
@@ -48,6 +48,14 @@ const getStyleSheet = href => {
 }
 
 /**
+ * Toggle style sheets
+ *
+ * @param {string[]} hrefs
+ * @returns {Promise<void>}
+ */
+export const toggleStyles = hrefs => Promise.all(hrefs.map(toggleStyle))
+
+/**
  * Toggle stylesheets; returns a promise that resolves with
  * an array of the CSS rules that were added or removed
  *
@@ -57,7 +65,7 @@ const getStyleSheet = href => {
 const getToggledRules = hrefs => {
   const styleSheetsBefore = hrefs.map(getStyleSheet)
 
-  return Promise.all(hrefs.map(toggleStyle)).then(() => {
+  return toggleStyles(hrefs).then(() => {
     const styleSheetsAfter = hrefs.map(getStyleSheet)
 
     return [...styleSheetsBefore, ...styleSheetsAfter]
@@ -127,7 +135,6 @@ const getStyleMap = elements => Array.from(elements).reduce(
  *
  * @param {string[]} hrefs
  * @param {object} [options]
- * @param {string} [options.sortBy = 'selectorText']
  * @param {boolean} [options.rulePropsOnly = false]
  * @param {boolean} [options.squash = true]
  * @returns {Promise<object>}
@@ -194,3 +201,21 @@ export const getStyleDiff = (hrefs, {
       }, {})
   })
 }
+
+/**
+ * Toggle style sheets and generate a CSS text that would revert the
+ * effects this had on the page
+ *
+ * @param {string[]} hrefs
+ * @returns {Promise<string>}
+ */
+export const generateCounterCSS = hrefs => getStyleDiff(hrefs).then(diff => {
+  return Object.entries(diff).map(([selectorText, { changes }]) => {
+    const rules = Object
+      .entries(changes)
+      .map(([prop, [value]]) => `  ${prop}: ${value};`)
+      .join('\n')
+
+    return `${selectorText} {\n${rules}\n}`
+  }).join('\n\n')
+})
