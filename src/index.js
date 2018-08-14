@@ -53,7 +53,7 @@ const getStyleSheet = href => {
  * @param {string[]} hrefs
  * @returns {Promise<void>}
  */
-export const toggleStyles = hrefs => Promise.all(hrefs.map(toggleStyle))
+const toggleStyles = hrefs => Promise.all(hrefs.map(toggleStyle))
 
 /**
  * Toggle stylesheets; returns a promise that resolves with
@@ -130,6 +130,21 @@ const getStyleMap = elements => Array.from(elements).reduce(
 )
 
 /**
+ * Push an element to an array if the array does not
+ * yet include that element
+ *
+ * @param {Array} array
+ * @param {any} element
+ */
+const pushUnique = (array, element) => {
+  if (array.indexOf(element) === -1) {
+    array.push(element)
+  }
+
+  return array
+}
+
+/**
  * Get a dictionary of styles that changed by toggling the
  * specified stylesheets
  *
@@ -139,7 +154,7 @@ const getStyleMap = elements => Array.from(elements).reduce(
  * @param {boolean} [options.squash = true]
  * @returns {Promise<object>}
  */
-export const getStyleDiff = (hrefs, {
+const getStyleDiff = (hrefs, {
   rulePropsOnly = false,
   squash = true
 } = {}) => {
@@ -180,13 +195,13 @@ export const getStyleDiff = (hrefs, {
         changes
       }) => {
         res[selectorText] = res[selectorText] || {
-          elements: new Set(),
-          cssText: new Set(),
+          elements: [],
+          cssText: [],
           changes: {}
         }
 
-        res[selectorText].elements.add(element)
-        res[selectorText].cssText.add(cssText)
+        pushUnique(res[selectorText].elements, element)
+        pushUnique(res[selectorText].cssText, cssText)
         Object.assign(res[selectorText].changes, changes)
 
         return res
@@ -209,7 +224,7 @@ export const getStyleDiff = (hrefs, {
  * @param {string[]} hrefs
  * @returns {Promise<string>}
  */
-export const generateCounterCSS = hrefs => getStyleDiff(hrefs).then(diff => {
+const generateCounterCSS = hrefs => getStyleDiff(hrefs).then(diff => {
   return Object.entries(diff).map(([selectorText, { changes }]) => {
     const rules = Object
       .entries(changes)
@@ -219,3 +234,9 @@ export const generateCounterCSS = hrefs => getStyleDiff(hrefs).then(diff => {
     return `${selectorText} {\n${rules}\n}`
   }).join('\n\n')
 })
+
+export {
+  toggleStyles,
+  getStyleDiff,
+  generateCounterCSS
+}
