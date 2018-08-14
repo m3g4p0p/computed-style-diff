@@ -53,7 +53,7 @@ const getStyleSheet = href => {
  * @param {string[]} hrefs
  * @returns {Promise<void>}
  */
-export const toggleStyles = hrefs => Promise.all(hrefs.map(toggleStyle))
+const toggleStyles = hrefs => Promise.all(hrefs.map(toggleStyle))
 
 /**
  * Toggle stylesheets; returns a promise that resolves with
@@ -139,7 +139,7 @@ const getStyleMap = elements => Array.from(elements).reduce(
  * @param {boolean} [options.squash = true]
  * @returns {Promise<object>}
  */
-export const getStyleDiff = (hrefs, {
+const getStyleDiff = (hrefs, {
   rulePropsOnly = false,
   squash = true
 } = {}) => {
@@ -209,7 +209,7 @@ export const getStyleDiff = (hrefs, {
  * @param {string[]} hrefs
  * @returns {Promise<string>}
  */
-export const generateCounterCSS = hrefs => getStyleDiff(hrefs).then(diff => {
+const generateCounterCSS = hrefs => getStyleDiff(hrefs).then(diff => {
   return Object.entries(diff).map(([selectorText, { changes }]) => {
     const rules = Object
       .entries(changes)
@@ -219,3 +219,9 @@ export const generateCounterCSS = hrefs => getStyleDiff(hrefs).then(diff => {
     return `${selectorText} {\n${rules}\n}`
   }).join('\n\n')
 })
+
+export {
+  toggleStyles,
+  getStyleDiff,
+  generateCounterCSS
+}
