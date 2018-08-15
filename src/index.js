@@ -130,6 +130,21 @@ const getStyleMap = elements => Array.from(elements).reduce(
 )
 
 /**
+ * Push an element to an array if the array does not
+ * yet include that element
+ *
+ * @param {Array} array
+ * @param {any} element
+ */
+const pushUnique = (array, element) => {
+  if (array.indexOf(element) === -1) {
+    array.push(element)
+  }
+
+  return array
+}
+
+/**
  * Get a dictionary of styles that changed by toggling the
  * specified stylesheets
  *
@@ -180,13 +195,13 @@ const getStyleDiff = (hrefs, {
         changes
       }) => {
         res[selectorText] = res[selectorText] || {
-          elements: new Set(),
-          cssText: new Set(),
+          elements: [],
+          cssText: [],
           changes: {}
         }
 
-        res[selectorText].elements.add(element)
-        res[selectorText].cssText.add(cssText)
+        pushUnique(res[selectorText].elements, element)
+        pushUnique(res[selectorText].cssText, cssText)
         Object.assign(res[selectorText].changes, changes)
 
         return res
