@@ -23,5 +23,8 @@
   },
   "standard": {
     "parser": "babel-eslint"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.0.0-rc.1"
   }
 }

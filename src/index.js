@@ -84,8 +84,8 @@ const getToggledRules = hrefs => {
 const getStyleObject = el => {
   const style = window.getComputedStyle(el)
 
-  return [...style].reduce((res, prop) => ({
-    ...res,
+  return [...style].reduce((result, prop) => ({
+    ...result,
     [prop]: style.getPropertyValue(prop)
   }), {})
 }
@@ -99,23 +99,23 @@ const getStyleObject = el => {
  * @param {string[]} [props]
  */
 const diffObjects = (a, b, props) => {
-  const res = Object.keys({ ...a, ...b })
+  const result = Object.keys({ ...a, ...b })
     .filter(key => (
       !props ||
       props.some(prop => key.indexOf(prop) === 0))
     )
-    .reduce((res, prop) => {
+    .reduce((result, prop) => {
       const aVal = a[prop]
       const bVal = b[prop]
 
       if (aVal !== bVal) {
-        res[prop] = [aVal, bVal]
+        result[prop] = [aVal, bVal]
       }
 
-      return res
+      return result
     }, {})
 
-  return Object.keys(res).length ? res : null
+  return Object.keys(result).length ? result : null
 }
 
 /**
@@ -125,7 +125,7 @@ const diffObjects = (a, b, props) => {
  * @returns {WeakMap}
  */
 const getStyleMap = elements => Array.from(elements).reduce(
-  (res, el) => res.set(el, getStyleObject(el)),
+  (result, el) => result.set(el, getStyleObject(el)),
   new WeakMap()
 )
 
@@ -150,14 +150,23 @@ const pushUnique = (array, element) => {
  *
  * @param {string[]} hrefs
  * @param {object} [options]
- * @param {boolean} [options.rulePropsOnly = false]
+ * @param {boolean} [options.rulePropsOnly = true]
  * @param {boolean} [options.squash = true]
  * @returns {Promise<object>}
  */
 const getStyleDiff = (hrefs, {
-  rulePropsOnly = false,
-  squash = true
+  breakpoints,
+  ...options
 } = {}) => {
+  if (breakpoints) {
+    return getStyleDiffs(hrefs, breakpoints, options)
+  }
+
+  const {
+    rulePropsOnly = true,
+    squash = true
+  } = options
+
   const elements = document.body.querySelectorAll('*')
   const before = getStyleMap(elements)
 
@@ -170,7 +179,7 @@ const getStyleDiff = (hrefs, {
         return { rule, elements }
       })
       .filter(({ elements }) => elements.length)
-      .reduce((res, { rule, elements }) => {
+      .reduce((result, { rule, elements }) => {
         const { cssText, selectorText } = rule
 
         const diff = Array
@@ -186,35 +195,55 @@ const getStyleDiff = (hrefs, {
           }))
           .filter(({ changes }) => changes)
 
-        return res.concat(diff)
+        return result.concat(diff)
       }, [])
-      .reduce(squash ? (res, {
+      .reduce(squash ? (result, {
         selectorText,
         cssText,
         element,
         changes
       }) => {
-        res[selectorText] = res[selectorText] || {
+        result[selectorText] = result[selectorText] || {
           elements: [],
           cssText: [],
           changes: {}
         }
 
-        pushUnique(res[selectorText].elements, element)
-        pushUnique(res[selectorText].cssText, cssText)
-        Object.assign(res[selectorText].changes, changes)
+        pushUnique(result[selectorText].elements, element)
+        pushUnique(result[selectorText].cssText, cssText)
+        Object.assign(result[selectorText].changes, changes)
 
-        return res
-      } : (res, {
+        return result
+      } : (result, {
         selectorText,
         ...diff
       }) => {
-        res[selectorText] = res[selectorText] || []
-        res[selectorText].push(diff)
+        result[selectorText] = result[selectorText] || []
+        result[selectorText].push(diff)
 
-        return res
+        return result
       }, {})
   })
+}
+
+const nextFrame = () => new Promise(resolve => {
+  window.requestAnimationFrame(resolve)
+})
+
+const getStyleDiffs = async (hrefs, breakpoints, options) => {
+  const result = {}
+
+  while (breakpoints.length) {
+    const [breakpoint, ...remaining] = breakpoints
+
+    breakpoints = remaining
+    window.resizeTo(breakpoint, window.outerHeight)
+    await nextFrame()
+    result[breakpoint] = await getStyleDiff(hrefs, options)
+    await toggleStyles(hrefs)
+  }
+
+  return result
 }
 
 /**

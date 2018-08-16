@@ -9,7 +9,7 @@ const path = {
 
 module.exports = ({ production = false } = {}) => ({
   entry: {
-    'style-diff': join(path.src, 'index.js')
+    'style-diff': ['@babel/polyfill', join(path.src, 'index.js')]
   },
   plugins: [
     new CleanWebpackPlugin(path.dist)
