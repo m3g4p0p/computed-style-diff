@@ -226,24 +226,19 @@ const getStyleDiff = (hrefs, {
   })
 }
 
-const nextFrame = () => new Promise(resolve => {
-  window.requestAnimationFrame(resolve)
-})
-
 const getStyleDiffs = async (hrefs, breakpoints, options) => {
   const result = {}
 
-  while (breakpoints.length) {
-    const [breakpoint, ...remaining] = breakpoints
+  return breakpoints.reduce((chain, breakpoint) => {
+    return chain.then(() => {
+      window.resizeTo(breakpoint, window.outerHeight)
 
-    breakpoints = remaining
-    window.resizeTo(breakpoint, window.outerHeight)
-    await nextFrame()
-    result[breakpoint] = await getStyleDiff(hrefs, options)
-    await toggleStyles(hrefs)
-  }
-
-  return result
+      return getStyleDiff(hrefs, options).then(diff => {
+        result[breakpoint] = diff
+        return toggleStyles(hrefs)
+      })
+    })
+  }, Promise.resolve()).then(() => result)
 }
 
 /**
